@@ -4,14 +4,13 @@ import RssParser from "rss-parser";
 
 class BotManager {
     private readonly bot: Telebot;
-    public constructor(token: string) {
+    public constructor(token: string, feed: FeedManager) {
         this.bot = new Telebot(token);
     }
     public send(chatId: number, text: string) {
         return this.bot.sendMessage(chatId, text);
     }
-    public startListen() {
-        let feedManager = new FeedManager();
+    public startListen(feedManager: FeedManager) {
         this.bot.on(['/start', '/hello'], (msg) => msg.reply.text('Welcome!'));
         this.bot.on(/^\/add (.+)$/, async(msg, props) => {
             console.log(msg);
