@@ -4,7 +4,7 @@ import RssParser from "rss-parser";
 
 class BotManager {
     private readonly bot: Telebot;
-    public constructor(token: string, feed: FeedManager) {
+    public constructor(token: string) {
         this.bot = new Telebot(token);
     }
     public send(chatId: number, text: string) {
