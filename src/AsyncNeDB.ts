@@ -1,9 +1,9 @@
 import NeDB from 'nedb';
 
 class AsyncNeDB extends NeDB {
-    public findAsync(query: any): Promise<{}[]> {
+    public findAsync(query: any) {
         return new Promise((resolve, reject) => {
-            this.find(query, (err: Error, docs: {}[]) => {
+            this.find(query, (err: Error, docs: any) => {
                 if (err) reject(err);
                 else resolve(docs);
             });
@@ -46,4 +46,5 @@ class AsyncNeDB extends NeDB {
         });
     }
 }
+
 export default AsyncNeDB;

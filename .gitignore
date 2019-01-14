@@ -3,3 +3,4 @@ dist/
 data/
 .vscode/
 settings.ts
+tslint.json

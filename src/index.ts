@@ -3,11 +3,11 @@ import BotManager from "./BotManager";
 import Updater from "./Updater"
 import FeedManager from "./FeedManager";
 
-let feed = new FeedManager();
+let feedManager = new FeedManager();
 let botManager = new BotManager(token);
-botManager.startListen(feed);
+botManager.startListen(feedManager);
 let updater = new Updater();
-updater.run(botManager, feed);
+updater.run(botManager, feedManager);
 console.log("listening....");
 
 
