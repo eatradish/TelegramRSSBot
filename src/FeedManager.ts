@@ -31,6 +31,7 @@ class FeedManager {
             const value = await this.db.findOneAsync(removeValue);
             if (value) {
                 await this.db.removeAsync(value, { multi: false });
+                resolve();
             }
             reject(new Error('Does not exist'));
         });
@@ -40,6 +41,7 @@ class FeedManager {
             const value = await this.db.findOneAsync(needUpdateQuery);
             if (value) {
                 await this.db.updateAsync(value, updateQuery, {});
+                resolve();
             }
             reject(new Error());
         });
