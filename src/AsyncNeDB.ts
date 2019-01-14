@@ -10,7 +10,7 @@ class AsyncNeDB extends NeDB {
         });
     }
 
-    public findOneAsync(query: any): Promise<{}> {
+    public findOneAsync(query: any) {
         return new Promise((resolve, reject) => {
             this.findOne(query, (err, doc: {}) => {
                 if (err) reject(err);
