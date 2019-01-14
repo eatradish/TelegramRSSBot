@@ -13,24 +13,34 @@ class FeedManager {
         updateTime: number = Date.now()): Promise<void> {
         return new Promise(async (resolve, reject) => {
             const addValue = {
-                userId, url, updateTime,
+                url, updateTime,
+                users: [userId],
                 authorUpdateTime: new Date(authorUpdateTime).getTime(),
             };
-            const findValue = { userId, url };
-            if (!(await this.db.findOneAsync(findValue))) {
+            const findValue = { url };
+            const value = await this.db.findOneAsync(findValue) as IDatebaseValue;
+            if (!value) {
                 await this.db.insertAsync(addValue);
                 resolve();
             }
-            reject(new Error('Already eXist'));
+            if (value.users && value.users.indexOf(userId) === -1) {
+                const newUserArrays = value.users;
+                newUserArrays.push(userId);
+                await this.updateQuery(value, { $set: { users: newUserArrays }});
+            }
+            reject(new Error('Already exist'));
         });
 
     }
     public remove(userId: number, url: string) {
         return new Promise(async (resolve, reject) => {
             const removeValue = { userId, url };
-            const value = await this.db.findOneAsync(removeValue);
+            const value = await this.db.findOneAsync(removeValue) as IDatebaseValue;
             if (value) {
-                await this.db.removeAsync(value, { multi: false });
+                const users = value.users;
+                users.splice(users.indexOf(userId), 1);
+                if (users.length === 0) await this.db.removeAsync(value, { multi: false });
+                else await this.updateQuery( value, { $set: {users} } );
                 resolve();
             }
             reject(new Error('Does not exist'));
@@ -64,6 +74,17 @@ class FeedManager {
     public async getFeedsUserNameByUrl(url: string) {
         const findValue = { url };
         return this.db.findAsync(findValue);
+    }
+
+    private async toHashMap() {
+        const map = new Map();
+        let n = 0;
+        const list = await this.db.findAsync({}) as IDatebaseValue[];
+        for (const index of list) {
+            map.set(index, n);
+            n += 1;
+        }
+        return map;
     }
 }
 

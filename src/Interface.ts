@@ -1,5 +1,5 @@
 export interface IDatebaseValue {
-    userId: number;
+    users: number[];
     url: string;
     updateTime: number;
     authorUpdateTime: number;

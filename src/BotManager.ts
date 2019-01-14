@@ -22,7 +22,8 @@ class BotManager {
                 const parser = new RssParser();
                 try {
                     rss = await parser.parseURL(text);
-                } catch (err) {
+                }
+                catch (err) {
                     return this.bot.sendMessage(msg.from.id, err);
                 }
                 const authorUpdateTime = rss.items[0].pubDate;
