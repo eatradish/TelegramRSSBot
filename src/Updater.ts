@@ -5,12 +5,16 @@ import { IDatebaseValue } from "./Interface";
 
 class Updater {
     private time: number;
-    public constructor(time = 60000) {
+    private feedManager: FeedManager;
+    private readonly botManager: BotManager;
+    public constructor(feedManager: FeedManager, botManager: BotManager, time = 60000) {
         this.time = time;
+        this.feedManager = feedManager;
+        this.botManager = botManager;
     }
-    public async run(botManager: BotManager, feedManager: FeedManager) {
+    public async run() {
         while (true) {
-            this.update(botManager, feedManager);
+            this.update();
             console.log("Updateing...");
             await this.sleep();
         }
@@ -18,9 +22,9 @@ class Updater {
     private sleep() {
         return new Promise(resolve => setTimeout(resolve, this.time));
     }
-    private async update(botManager: BotManager, feedManager: FeedManager) {
+    private async update() {
         const parser = new RssParser();
-        const list = await feedManager.getUpdateList() as IDatebaseValue[];
+        const list = await this.feedManager.getUpdateList() as IDatebaseValue[];
         console.log(list);
         for (const index of list) {
             const rssIndex = await parser.parseURL(index.url);
@@ -30,15 +34,15 @@ class Updater {
                 const updateTime = Date.now();
                 const updateValue = { $set: { updateTime, authorUpdateTime } };
                 try {
-                    await feedManager.updateQuery(index, updateValue);
+                    await this.feedManager.updateQuery(index, updateValue);
                 }
                 catch (err){
                     console.log(err);
                 }
                 const value = (await
-                    feedManager.getFeedsUserNameByUrl(index.url)) as IDatebaseValue[];
+                    this.feedManager.getFeedsUserNameByUrl(index.url)) as IDatebaseValue[];
                 for (const i of value) {
-                    botManager.send(i.userId,
+                    this.botManager.send(i.userId,
                         rssIndex.items[0].title + '\n' + rssIndex.items[0].link);
                 }
             }

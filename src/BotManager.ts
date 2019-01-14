@@ -4,13 +4,15 @@ import RssParser from "rss-parser";
 
 class BotManager {
     private readonly bot: Telebot;
-    public constructor(token: string) {
+    private feedManager: FeedManager;
+    public constructor(token: string, feedManager: FeedManager) {
         this.bot = new Telebot(token);
+        this.feedManager = feedManager;
     }
     public send(chatId: number, text: string) {
         return this.bot.sendMessage(chatId, text);
     }
-    public startListen(feedManager: FeedManager) {
+    public startListen() {
         this.bot.on(['/start', '/hello'], (msg) => msg.reply.text('Welcome!'));
         this.bot.on(/^\/add (.+)$/, async (msg, props) => {
             console.log(msg);
@@ -27,7 +29,7 @@ class BotManager {
                 const url = text;
                 const userId = msg.from.id;
                 try {
-                    await feedManager.add(userId, url, authorUpdateTime);
+                    await this.feedManager.add(userId, url, authorUpdateTime);
                 }
                 catch (err) {
                     return this.bot.sendMessage(msg.from.id, err);
@@ -42,7 +44,7 @@ class BotManager {
                 const url = text;
                 const userId = msg.from.id;
                 try {
-                    await feedManager.remove(userId, url);
+                    await this.feedManager.remove(userId, url);
                 }
                 catch (err){
                     return this.bot.sendMessage(msg.from.id, err);
@@ -53,7 +55,7 @@ class BotManager {
         this.bot.on('/all', async (msg) => {
             console.log(msg);
             const chatId = msg.from.id;
-            const list = await feedManager.getFeedsByUserName(chatId);
+            const list = await this.feedManager.getFeedsByUserName(chatId);
             if (list.length !== 0) {
                 const res = list.join('\n');
                 return this.bot.sendMessage(chatId, res);
