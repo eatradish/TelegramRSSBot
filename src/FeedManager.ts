@@ -2,11 +2,17 @@ import Nedb from "./AsyncNeDB";
 import { IDatebaseValue } from "./Interface";
 
 class FeedManager {
-    public db: Nedb;
-    public map: Map<string, IDatebaseValue>;
+    private db: Nedb;
+    private map: Map<string, IDatebaseValue>;
     public constructor(filename: string = '../data/test.db') {
         this.db = new Nedb({ filename, autoload: true });
         this.map = new Map();
+    }
+    public getMap() {
+        return this.map;
+    }
+    public setMap(needSet: IDatebaseValue) {
+        this.map.set(needSet.url, needSet);
     }
     public async init() {
         this.map = await this.toHashMap();

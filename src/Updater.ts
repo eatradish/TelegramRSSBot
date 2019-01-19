@@ -24,7 +24,7 @@ class Updater {
     }
     private async update() {
         const parser = new RssParser();
-        const list = await this.feedManager.getUpdateList() as IDatebaseValue[];
+        const list = await this.feedManager.getUpdateList();
         console.log(list);
         for (const index of list) {
             const rssIndex = await parser.parseURL(index.url);
@@ -41,13 +41,12 @@ class Updater {
                 } as IDatebaseValue;
                 try {
                     await this.feedManager.updateQuery(index, updateValue);
-                    this.feedManager.map.set(index.url, newIndex);
+                    this.feedManager.setMap(newIndex);
                 }
-                catch (err){
+                catch (err) {
                     console.log(err);
                 }
-                const users = (await
-                    this.feedManager.getFeedsUserNameByUrl(index.url));
+                const users = await this.feedManager.getFeedsUserNameByUrl(index.url);
                 if (users) {
                     for (const user of users) {
                         this.botManager.send(user,
