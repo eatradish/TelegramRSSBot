@@ -33,17 +33,26 @@ class Updater {
                 const authorUpdateTime = newIndexTime;
                 const updateTime = Date.now();
                 const updateValue = { $set: { updateTime, authorUpdateTime } };
+                const newIndex = {
+                    authorUpdateTime,
+                    updateTime,
+                    url: index.url,
+                    users: index.users,
+                } as IDatebaseValue;
                 try {
                     await this.feedManager.updateQuery(index, updateValue);
+                    this.feedManager.map.set(index.url, newIndex);
                 }
                 catch (err){
                     console.log(err);
                 }
-                const value = (await
-                    this.feedManager.getFeedsUserNameByUrl(index.url)) as IDatebaseValue[];
-                for (const i of value) {
-                    this.botManager.send(i.userId,
-                        rssIndex.items[0].title + '\n' + rssIndex.items[0].link);
+                const users = (await
+                    this.feedManager.getFeedsUserNameByUrl(index.url));
+                if (users) {
+                    for (const user of users) {
+                        this.botManager.send(user,
+                            rssIndex.items[0].title + '\n' + rssIndex.items[0].link);
+                    }
                 }
             }
         }

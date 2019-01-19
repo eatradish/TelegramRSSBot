@@ -2,9 +2,15 @@ import Nedb from "./AsyncNeDB";
 import { IDatebaseValue } from "./Interface";
 
 class FeedManager {
-    private db: Nedb;
+    public db: Nedb;
+    public map: Map<string, IDatebaseValue>;
     public constructor(filename: string = '../data/test.db') {
         this.db = new Nedb({ filename, autoload: true });
+        this.map = new Map();
+    }
+    public async init() {
+        this.map = await this.toHashMap();
+        return this;
     }
     public add(
         userId: number,
@@ -12,21 +18,23 @@ class FeedManager {
         authorUpdateTime: string,
         updateTime: number = Date.now()): Promise<void> {
         return new Promise(async (resolve, reject) => {
-            const addValue = {
-                url, updateTime,
-                users: [userId],
-                authorUpdateTime: new Date(authorUpdateTime).getTime(),
-            };
-            const findValue = { url };
-            const value = await this.db.findOneAsync(findValue) as IDatebaseValue;
+            const value = this.map.get(url) as IDatebaseValue;
             if (!value) {
+                const addValue = {
+                    url, updateTime,
+                    users: [userId],
+                    authorUpdateTime: new Date(authorUpdateTime).getTime(),
+                };
                 await this.db.insertAsync(addValue);
+                this.map.set(url, addValue as IDatebaseValue);
                 resolve();
             }
             if (value.users && value.users.indexOf(userId) === -1) {
                 const newUserArrays = value.users;
                 newUserArrays.push(userId);
+                value.users = newUserArrays;
                 await this.updateQuery(value, { $set: { users: newUserArrays }});
+                this.map.set(url, value);
             }
             reject(new Error('Already exist'));
         });
@@ -34,13 +42,19 @@ class FeedManager {
     }
     public remove(userId: number, url: string) {
         return new Promise(async (resolve, reject) => {
-            const removeValue = { userId, url };
-            const value = await this.db.findOneAsync(removeValue) as IDatebaseValue;
+            const value = this.map.get(url) as IDatebaseValue;
             if (value) {
                 const users = value.users;
                 users.splice(users.indexOf(userId), 1);
-                if (users.length === 0) await this.db.removeAsync(value, { multi: false });
-                else await this.updateQuery( value, { $set: {users} } );
+                if (users.length === 0) {
+                    await this.db.removeAsync(value, { multi: false });
+                    this.map.delete(url);
+                }
+                else {
+                    value.users = users;
+                    this.map.set(url, value);
+                    await this.updateQuery( value, { $set: {users} } );
+                }
                 resolve();
             }
             reject(new Error('Does not exist'));
@@ -50,41 +64,44 @@ class FeedManager {
         return new Promise(async (resolve, reject) => {
             const value = await this.db.findOneAsync(needUpdateQuery);
             if (value) {
-                await this.db.updateAsync(value, updateQuery, {});
-                resolve();
+                const res = await this.db.updateAsync(value, updateQuery, {});
+                resolve(res);
             }
             reject(new Error());
         });
     }
     public async getFeedsByUserName(userId: number) {
-        const findValue = { userId };
-        const list = await this.db.findAsync(findValue) as IDatebaseValue[];
-        const res: string[] = [];
-        for (const index of list) {
-            res.push(index.url);
+        const list = [];
+        for (const [key, value] of this.map) {
+            if (value.users.indexOf(userId) !== -1) {
+                list.push(key);
+            }
         }
-        return res;
+        return list;
     }
 
     public async getUpdateList() {
-        const findValue = { updateTime: { $lte: Date.now() - 3600 } };
-        return this.db.findAsync(findValue);
+        const list = [];
+        for (const value of this.map.values()) {
+            if (Date.now() - value.updateTime > 3600) {
+                list.push(value);
+            }
+        }
+        return list;
     }
 
     public async getFeedsUserNameByUrl(url: string) {
-        const findValue = { url };
-        return this.db.findAsync(findValue);
+        if (this.map.get(url) !== undefined) {
+            return (this.map.get(url) as IDatebaseValue).users;
+        }
     }
 
     private async toHashMap() {
-        const map = new Map();
-        let n = 0;
         const list = await this.db.findAsync({}) as IDatebaseValue[];
         for (const index of list) {
-            map.set(index, n);
-            n += 1;
+            this.map.set(index.url, index);
         }
-        return map;
+        return this.map;
     }
 }
 
