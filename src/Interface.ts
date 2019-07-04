@@ -4,7 +4,7 @@ export interface IDatebaseValue {
     updateTime: number;
     authorUpdateTime: number;
 }
-interface IBotManager {
+export interface IBotManager {
     msg: any;
     props: any;
 }
