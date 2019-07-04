@@ -65,7 +65,7 @@ class FeedManager {
             reject(new Error('Does not exist'));
         });
     }
-    public async updateQuery(needUpdateQuery: IDatebaseValue, updateQuery: any) {
+    public updateQuery(needUpdateQuery: IDatebaseValue, updateQuery: any) {
         return new Promise(async (resolve, reject) => {
             const value = await this.db.findOneAsync(needUpdateQuery);
             if (value) {
