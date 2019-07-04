@@ -25,7 +25,7 @@ class FeedManager {
         updateTime: number = Date.now()): Promise<void> {
         return new Promise(async (resolve, reject) => {
             const value = this.map.get(url) as IDatebaseValue;
-            if (!value) {
+            if (value === undefined) {
                 const addValue = {
                     url, updateTime,
                     users: [userId],
@@ -35,7 +35,7 @@ class FeedManager {
                 this.map.set(url, addValue as IDatebaseValue);
                 resolve();
             }
-            if (value.users && value.users.indexOf(userId) === -1) {
+            else if (value.users && value.users.indexOf(userId) === -1) {
                 const newUserArrays = value.users;
                 newUserArrays.push(userId);
                 value.users = newUserArrays;
@@ -49,7 +49,7 @@ class FeedManager {
     public remove(userId: number, url: string) {
         return new Promise(async (resolve, reject) => {
             const value = this.map.get(url) as IDatebaseValue;
-            if (value) {
+            if (value !== undefined) {
                 const users = value.users;
                 users.splice(users.indexOf(userId), 1);
                 if (users.length === 0) {
