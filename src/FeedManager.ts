@@ -44,7 +44,6 @@ class FeedManager {
             }
             reject(new Error('Already exist'));
         });
-
     }
     public remove(userId: number, url: string) {
         return new Promise(async (resolve, reject) => {
@@ -76,7 +75,7 @@ class FeedManager {
             reject(new Error());
         });
     }
-    public async getFeedsByUserName(userId: number) {
+    public getFeedsByUserName(userId: number) {
         const list = [];
         for (const [key, value] of this.map) {
             if (value.users.indexOf(userId) !== -1) {
@@ -86,7 +85,7 @@ class FeedManager {
         return list;
     }
 
-    public async getUpdateList() {
+    public getUpdateList() {
         const list = [];
         for (const value of this.map.values()) {
             if (Date.now() - value.updateTime > 3600) {
@@ -96,7 +95,7 @@ class FeedManager {
         return list;
     }
 
-    public async getFeedsUserNameByUrl(url: string) {
+    public getFeedsUserNameByUrl(url: string) {
         if (this.map.get(url) !== undefined) {
             return (this.map.get(url) as IDatebaseValue).users;
         }
