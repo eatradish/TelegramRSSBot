@@ -1,7 +1,7 @@
 import Telebot from 'telebot';
 import FeedManager from './FeedManager';
 import RssParser from "rss-parser";
-import { IBotManager } from './Interface';
+/*import { IBotManager } from './Interface';*/
 
 class BotManager {
     private readonly bot: Telebot;
@@ -15,21 +15,21 @@ class BotManager {
     }
     public startListen() {
         this.bot.on(['/start', '/hello'], (msg) => msg.reply.text('Welcome!'));
-        this.bot.on(/^\/add (.+)$/, async (botValue) => {
-            return this.add(botValue);
+        this.bot.on(/^\/add (.+)$/, async (msg, props) => {
+            return this.add(msg, props);
         });
-        this.bot.on(/^\/remove (.+)$/, async (botValue) => {
-            return this.remove(botValue);
+        this.bot.on(/^\/remove (.+)$/, async (msg, props) => {
+            return this.remove(msg, props);
         });
         this.bot.on('/all', async (msg) => {
             return this.all(msg);
         });
         this.bot.start();
     }
-    public async add(botValue: IBotManager) {
+    public async add(msg: any, props: any) {
         let authorUpdateTime: string;
-        console.log(botValue.msg);
-        const text = botValue.props.match[1];
+        console.log(msg);
+        const text = props.match[1];
         if (text) {
             let rss;
             const parser = new RssParser();
@@ -37,34 +37,34 @@ class BotManager {
                 rss = await parser.parseURL(text);
             }
             catch (err) {
-                return this.bot.sendMessage(botValue.msg.from.id, err);
+                return this.bot.sendMessage(msg.from.id, err);
             }
             if (rss.items !== undefined && rss.items[0].pubDate !== undefined) {
                 authorUpdateTime = rss.items[0].pubDate;
             }
             else return;
             const url = text;
-            const userId = botValue.msg.from.id;
+            const userId = msg.from.id;
             try {
                 await this.feedManager.add(userId, url, authorUpdateTime);
             }
             catch (err) {
-                return this.bot.sendMessage(botValue.msg.from.id, err);
+                return this.bot.sendMessage(msg.from.id, err);
             }
             return this.bot.sendMessage(userId, 'Subscribed successfully');
         }
     }
-    public async remove(botValue: IBotManager) {
-        console.log(botValue.msg);
-        const text = botValue.props.match[1];
+    public async remove(msg: any, props: any) {
+        console.log(msg);
+        const text = props.match[1];
         if (text) {
             const url = text;
-            const userId = botValue.msg.from.id;
+            const userId = msg.from.id;
             try {
                 await this.feedManager.remove(userId, url);
             }
             catch (err){
-                return this.bot.sendMessage(botValue.msg.from.id, err);
+                return this.bot.sendMessage(msg.from.id, err);
             }
             return this.bot.sendMessage(userId, 'Remove successful');
         }
