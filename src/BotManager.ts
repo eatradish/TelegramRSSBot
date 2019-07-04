@@ -27,6 +27,7 @@ class BotManager {
         this.bot.start();
     }
     public async add(botValue: IBotManager) {
+        let authorUpdateTime: string;
         console.log(botValue.msg);
         const text = botValue.props.match[1];
         if (text) {
@@ -38,7 +39,10 @@ class BotManager {
             catch (err) {
                 return this.bot.sendMessage(botValue.msg.from.id, err);
             }
-            const authorUpdateTime = rss.items[0].pubDate;
+            if (rss.items !== undefined && rss.items[0].pubDate !== undefined) {
+                authorUpdateTime = rss.items[0].pubDate;
+            }
+            else return;
             const url = text;
             const userId = botValue.msg.from.id;
             try {
