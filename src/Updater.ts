@@ -26,9 +26,13 @@ class Updater {
         const parser = new RssParser();
         const list = await this.feedManager.getUpdateList();
         console.log(list);
+        let newIndexTime;
         for (const index of list) {
             const rssIndex = await parser.parseURL(index.url);
-            const newIndexTime = new Date(rssIndex.items[0].pubDate).getTime();
+            if (rssIndex.items !== undefined && rssIndex.items[0].pubDate !== undefined) {
+                newIndexTime = new Date(rssIndex.items[0].pubDate).getTime();
+            }
+            else return;
             if (newIndexTime > index.authorUpdateTime) {
                 const authorUpdateTime = newIndexTime;
                 const updateTime = Date.now();
