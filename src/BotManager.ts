@@ -1,8 +1,7 @@
 import Telebot from 'telebot';
 import FeedManager from './FeedManager';
 import RssParser from "rss-parser";
-import { totalmem } from 'os';
-/*import { IBotManager } from './Interface';*/
+
 
 class BotManager {
     private readonly bot: Telebot;
