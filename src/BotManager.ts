@@ -1,6 +1,7 @@
 import Telebot from 'telebot';
 import FeedManager from './FeedManager';
 import RssParser from "rss-parser";
+import { totalmem } from 'os';
 /*import { IBotManager } from './Interface';*/
 
 class BotManager {
@@ -11,6 +12,7 @@ class BotManager {
         this.feedManager = feedManager;
     }
     public send(chatId: number, text: string) {
+        console.log(chatId + text);
         return this.bot.sendMessage(chatId, text);
     }
     public startListen() {
@@ -30,6 +32,7 @@ class BotManager {
         let authorUpdateTime: string;
         console.log(msg);
         const text = props.match[1];
+        let title: string;
         if (text) {
             let rss;
             const parser = new RssParser();
@@ -39,34 +42,36 @@ class BotManager {
             catch (err) {
                 return this.bot.sendMessage(msg.from.id, err);
             }
-            if (rss.items !== undefined && rss.items[0].pubDate !== undefined) {
+            if (rss.title !== undefined && rss.items !== undefined && rss.items[0].pubDate !== undefined) {
                 authorUpdateTime = rss.items[0].pubDate;
+                title = rss.title
             }
             else return;
             const url = text;
             const userId = msg.from.id;
             try {
-                await this.feedManager.add(userId, url, authorUpdateTime);
+                await this.feedManager.add(userId, url, title, authorUpdateTime);
             }
             catch (err) {
                 return this.bot.sendMessage(msg.from.id, err);
             }
-            return this.bot.sendMessage(userId, 'Subscribed successfully');
+            return this.bot.sendMessage(userId, title + '订阅成功');
         }
     }
     public async remove(msg: any, props: any) {
         console.log(msg);
         const text = props.match[1];
+        const url = text;
+        const userId = msg.from.id;
+        const title = this.feedManager.getMap().get(url)
         if (text) {
-            const url = text;
-            const userId = msg.from.id;
             try {
                 await this.feedManager.remove(userId, url);
             }
             catch (err){
                 return this.bot.sendMessage(msg.from.id, err);
             }
-            return this.bot.sendMessage(userId, 'Remove successful');
+            return this.bot.sendMessage(userId, title + '删除成功');
         }
     }
     public async all(msg: any) {
@@ -78,7 +83,7 @@ class BotManager {
             return this.bot.sendMessage(chatId, res);
         }
         else return this.bot.sendMessage(chatId,
-             'Are you sure you subscribed to RSS on this bot?');
+             '你确定你在这个 Bot 订阅过 RSS 吗？');
     }
 }
 

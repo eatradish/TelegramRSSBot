@@ -1,10 +1,7 @@
 export interface IDatebaseValue {
     users: number[];
     url: string;
+    title: string;
     updateTime: number;
     authorUpdateTime: number;
-}
-export interface IBotManager {
-    msg: any;
-    props: any;
 }

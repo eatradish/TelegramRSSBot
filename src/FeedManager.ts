@@ -21,13 +21,14 @@ class FeedManager {
     public add(
         userId: number,
         url: string,
+        title: string,
         authorUpdateTime: string,
         updateTime: number = Date.now()): Promise<void> {
         return new Promise(async (resolve, reject) => {
             const value = this.map.get(url) as IDatebaseValue;
             if (value === undefined) {
                 const addValue = {
-                    url, updateTime,
+                    url, updateTime, title,
                     users: [userId],
                     authorUpdateTime: new Date(authorUpdateTime).getTime(),
                 };
