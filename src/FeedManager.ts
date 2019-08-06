@@ -18,6 +18,13 @@ class FeedManager {
         this.map = await this.toHashMap();
         return this;
     }
+    public searchMap(keyword: string) {
+        for (const [key, _] of this.map) {
+            if (key.indexOf(keyword) !== -1) {
+                return key;
+            }
+        }
+    }
     public add(
         userId: number,
         url: string,
