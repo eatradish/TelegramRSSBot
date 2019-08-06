@@ -4,4 +4,5 @@ export interface IDatebaseValue {
     title: string;
     updateTime: number;
     authorUpdateTime: number;
+    msgids: number[];
 }

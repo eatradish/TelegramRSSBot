@@ -30,7 +30,8 @@ class FeedManager {
         url: string,
         title: string,
         authorUpdateTime: string,
-        updateTime: number = Date.now()): Promise<void> {
+        updateTime: number = Date.now()): 
+        Promise<void> {
         return new Promise(async (resolve, reject) => {
             const value = this.map.get(url) as IDatebaseValue;
             if (value === undefined) {
@@ -38,6 +39,7 @@ class FeedManager {
                     url, updateTime, title,
                     users: [userId],
                     authorUpdateTime: new Date(authorUpdateTime).getTime(),
+                    msgids: [],
                 };
                 await this.db.insertAsync(addValue);
                 this.map.set(url, addValue as IDatebaseValue);

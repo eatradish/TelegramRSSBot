@@ -1,8 +1,6 @@
 import Telebot from 'telebot';
 import FeedManager from './FeedManager';
 import RssParser from "rss-parser";
-import { IDatebaseValue } from './Interface';
-
 
 class BotManager {
     private readonly bot: Telebot;
@@ -11,15 +9,17 @@ class BotManager {
         this.bot = new Telebot(token);
         this.feedManager = feedManager;
     }
-    public send(chatId: number, text: string) {
+    public async send(chatId: number, text: string) {
         console.log(chatId + text);
-        return this.bot.sendMessage(chatId, text);
+        return await this.bot.sendMessage(chatId, text);
     }
     public startListen() {
         this.bot.on('*', (msg) => {
             return this.quickRemove(msg);
         });
-        this.bot.on(['/start', '/hello'], (msg) => msg.reply.text('咸鱼叫，咸鱼叫，咸鱼被吃掉！'));
+        this.bot.on(['/start', '/hello'], (msg) => {
+            msg.reply.text('咸鱼叫，咸鱼叫，咸鱼被吃掉！');
+        });
         this.bot.on(/^\/add (.+)$/, async (msg, props) => {
             return this.add(msg, props);
         });
@@ -97,29 +97,9 @@ class BotManager {
         console.log(msg);
         const chatId = msg.from.id;
         const rtm = msg.reply_to_message;
-        const toURL = (url: string) => {
-            const reg = "^(?=^.{3,255}$)(http(s)?:\/\/)?(www\.)?[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+(:\d+)*(\/\w+\.\w+)*$";
-            return url.replace("*", reg);
-        }
         if (msg.text !== '/quick_remove') return;
         if (rtm !== undefined && rtm.from.id === 683463769) {
-            const url = toURL(rtm.text as string);
             
-            /*
-            console.log(url);
-            let title;
-            let item = this.feedManager.searchMap(url);
-            let url_info;
-            if (item !== undefined) {
-                url_info = this.feedManager.getMap().get(item)
-            }
-            if (url_info !== undefined) {
-                title = url_info.title;
-            }
-            if (item !== undefined && title !== undefined) {
-                await this.feedManager.remove(chatId, item);
-                return this.bot.sendMessage(chatId, title);
-            }*/
         }
     }
 }

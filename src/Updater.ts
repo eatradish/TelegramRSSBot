@@ -51,10 +51,24 @@ class Updater {
                     console.log(err);
                 }
                 const users = await this.feedManager.getFeedsUserNameByUrl(index.url);
-                if (users) {
+                let item;
+                let msgids: number[];
+                if (rssIndex.feedUrl !== undefined && users) {
+                    item = this.feedManager.getMap().get(rssIndex.feedUrl) as IDatebaseValue;
+                    if (item !== undefined) {
+                        msgids = item.msgids;
+                    }
+                    else return;
                     for (const user of users) {
-                        this.botManager.send(user,
+                        const res = await this.botManager.send(user,
                             rssIndex.items[0].title + '\n' + rssIndex.items[0].link);
+                        console.log(res);
+                        if (msgids !== undefined) {
+                            msgids.push(res.message_id);
+                            item.msgids = msgids;
+                            await this.feedManager.updateQuery(item, { $set: { msgids: msgids }});
+                            this.feedManager.setMap(item);
+                        }
                     }
                 }
             }
