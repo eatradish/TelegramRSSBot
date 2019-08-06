@@ -73,6 +73,7 @@ class BotManager {
                this.feedManager.setMap(item);
             }
         }
+        return;
     }
     public async remove(msg: any, props: any) {
         console.log(msg);
@@ -107,12 +108,12 @@ class BotManager {
              '你确定你在这个 Bot 订阅过 RSS 吗？');
     }
     public async quickRemove(msg: any) {
+        if (msg.text !== '/quick_remove') return;
         console.log(msg);
         const chatId = msg.from.id;
         const rtm = msg.reply_to_message;
         let rssURL;
         let title;
-        if (msg.text !== '/quick_remove') return;
         if (rtm !== undefined && rtm.from.id === 683463769) {
             const m = this.feedManager.getMap();
             for (const [key, value] of m) {

@@ -42,6 +42,7 @@ class Updater {
                     updateTime,
                     url: index.url,
                     users: index.users,
+                    msgids: index.msgids,
                 } as IDatebaseValue;
                 try {
                     await this.feedManager.updateQuery(index, updateValue);

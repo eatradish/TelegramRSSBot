@@ -4,7 +4,7 @@ import { IDatebaseValue } from "./Interface";
 class FeedManager {
     private db: Nedb;
     private map: Map<string, IDatebaseValue>;
-    public constructor(filename: string = '../data/test.db') {
+    public constructor(filename: string = './data/test.db') {
         this.db = new Nedb({ filename, autoload: true });
         this.map = new Map();
     }
