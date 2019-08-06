@@ -54,15 +54,20 @@ class BotManager {
             catch (err) {
                 return this.bot.sendMessage(msg.from.id, err);
             }
-            return this.bot.sendMessage(userId, title + '订阅成功');
+            return this.bot.sendMessage(userId, title + ' 订阅成功');
         }
     }
     public async remove(msg: any, props: any) {
         console.log(msg);
+        let title: string;
         const text = props.match[1];
         const url = text;
         const userId = msg.from.id;
-        const title = this.feedManager.getMap().get(url)
+        const rss = this.feedManager.getMap().get(url)
+        if (rss !== undefined) {
+            title = rss.title;
+        }
+        else return;
         if (text) {
             try {
                 await this.feedManager.remove(userId, url);
@@ -70,7 +75,7 @@ class BotManager {
             catch (err){
                 return this.bot.sendMessage(msg.from.id, err);
             }
-            return this.bot.sendMessage(userId, title + '删除成功');
+            return this.bot.sendMessage(userId, title + ' 删除成功');
         }
     }
     public async all(msg: any) {
