@@ -1,6 +1,7 @@
 import Telebot from 'telebot';
 import FeedManager from './FeedManager';
 import RssParser from "rss-parser";
+import { IDatebaseValue } from "./Interface";
 
 class BotManager {
     private readonly bot: Telebot;
@@ -58,7 +59,19 @@ class BotManager {
             catch (err) {
                 return this.bot.sendMessage(msg.from.id, err);
             }
-            return this.bot.sendMessage(userId, title + ' 订阅成功');
+            const result = await this.bot.sendMessage(userId, title + ' 订阅成功');
+            const items = this.feedManager.getMap();
+            let item;
+            let msgids;
+            if (rss.feedUrl !== undefined && items.get(rss.feedUrl) !== undefined) {
+               item = items.get(rss.feedUrl) as IDatebaseValue;
+               if (item !== undefined) msgids = item.msgids;
+               else return;
+               msgids.push(result.message_id);
+               item.msgids = msgids;
+               this.feedManager.updateQuery(item, { $set: { msgids: msgids }});
+               this.feedManager.setMap(item);
+            }
         }
     }
     public async remove(msg: any, props: any) {
@@ -101,7 +114,7 @@ class BotManager {
         let title;
         if (msg.text !== '/quick_remove') return;
         if (rtm !== undefined && rtm.from.id === 683463769) {
-            const m = this.feedManager.getMap()
+            const m = this.feedManager.getMap();
             for (const [key, value] of m) {
                 if (value.msgids.indexOf(rtm.message_id) !== -1) {
                     rssURL = key;
