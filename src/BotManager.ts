@@ -79,7 +79,7 @@ class BotManager {
             catch (err){
                 return this.bot.sendMessage(msg.from.id, err);
             }
-            return this.bot.sendMessage(userId, title + ' 删除成功');
+            return this.bot.sendMessage(userId, title + ' 取消订阅成功');
         }
     }
     public async all(msg: any) {
@@ -97,9 +97,21 @@ class BotManager {
         console.log(msg);
         const chatId = msg.from.id;
         const rtm = msg.reply_to_message;
+        let rssURL;
+        let title;
         if (msg.text !== '/quick_remove') return;
         if (rtm !== undefined && rtm.from.id === 683463769) {
-            
+            const m = this.feedManager.getMap()
+            for (const [key, value] of m) {
+                if (value.msgids.indexOf(rtm.message_id) !== -1) {
+                    rssURL = key;
+                    title = value.title;
+                }
+            }
+            if (rssURL !== undefined && title !== undefined) {
+                this.feedManager.remove(chatId, rssURL);
+                return this.bot.sendMessage(chatId, title + " 取消订阅成功");
+            }
         }
     }
 }
