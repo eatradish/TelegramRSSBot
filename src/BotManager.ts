@@ -97,10 +97,14 @@ class BotManager {
         console.log(msg);
         const chatId = msg.from.id;
         const rtm = msg.reply_to_message;
+        const toURL = (url: string) => {
+            const reg = "^(?=^.{3,255}$)(http(s)?:\/\/)?(www\.)?[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+(:\d+)*(\/\w+\.\w+)*$";
+            return url.replace("*", reg);
+        }
         if (msg.text !== '/quick_remove') return;
         if (rtm !== undefined && rtm.from.id === 683463769) {
-            const pathname = new URL((rtm.text as string))
-            console.log(pathname);
+            const url = toURL(rtm.text as string);
+            
             /*
             console.log(url);
             let title;
