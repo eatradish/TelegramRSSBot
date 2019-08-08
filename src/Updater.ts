@@ -45,7 +45,7 @@ class Updater {
                     msgids: index.msgids,
                 } as IDatebaseValue;
                 try {
-                    await this.feedManager.updateQuery(index, updateValue);
+                    this.feedManager.updateQuery(index, updateValue);
                     this.feedManager.setMap(newIndex);
                 }
                 catch (err) {
@@ -67,7 +67,7 @@ class Updater {
                         if (msgids !== undefined) {
                             msgids.push(res.message_id);
                             item.msgids = msgids;
-                            await this.feedManager.updateQuery(item, { $set: { msgids: msgids }});
+                            this.feedManager.updateQuery(item, { $set: { msgids: msgids }});
                             this.feedManager.setMap(item);
                         }
                     }
