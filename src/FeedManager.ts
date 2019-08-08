@@ -34,7 +34,7 @@ class FeedManager {
                     authorUpdateTime: new Date(authorUpdateTime).getTime(),
                     msgids: [],
                 };
-                await this.db.insertAsync(addValue);
+                this.db.insertAsync(addValue);
                 this.map.set(url, addValue as IDatebaseValue);
                 resolve();
             }
@@ -42,7 +42,7 @@ class FeedManager {
                 const newUserArrays = value.users;
                 newUserArrays.push(userId);
                 value.users = newUserArrays;
-                await this.updateQuery(value, { $set: { users: newUserArrays }});
+                this.updateQuery(value, { $set: { users: newUserArrays }});
                 this.map.set(url, value);
             }
             reject(new Error('Already exist'));
@@ -55,13 +55,13 @@ class FeedManager {
                 const users = value.users;
                 users.splice(users.indexOf(userId), 1);
                 if (users.length === 0) {
-                    await this.db.removeAsync(value, { multi: false });
+                    this.db.removeAsync(value, { multi: false });
                     this.map.delete(url);
                 }
                 else {
                     value.users = users;
                     this.map.set(url, value);
-                    await this.updateQuery( value, { $set: {users} } );
+                    this.updateQuery( value, { $set: {users} } );
                 }
                 resolve();
             }

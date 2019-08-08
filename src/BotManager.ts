@@ -69,7 +69,7 @@ class BotManager {
                else return;
                msgids.push(result.message_id);
                item.msgids = msgids;
-               this.feedManager.updateQuery(item, { $set: { msgids: msgids }});
+               await this.feedManager.updateQuery(item, { $set: { msgids: msgids }});
                this.feedManager.setMap(item);
             }
         }
