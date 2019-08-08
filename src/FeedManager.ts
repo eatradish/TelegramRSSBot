@@ -82,7 +82,7 @@ class FeedManager {
         const list = [];
         for (const [key, value] of this.map) {
             if (value.users.indexOf(userId) !== -1) {
-                list.push(value.title + key);
+                list.push(value.title + ' ' + key);
             }
         }
         return list;
