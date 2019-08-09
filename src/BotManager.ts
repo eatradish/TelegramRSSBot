@@ -61,17 +61,17 @@ class BotManager {
             }
             const result = await this.bot.sendMessage(userId, title + ' 订阅成功');
             const items = this.feedManager.getMap();
-            let item;
             let msgids;
-            if (rss.feedUrl !== undefined && items.get(rss.feedUrl) !== undefined) {
-               item = items.get(rss.feedUrl) as IDatebaseValue;
-               if (item !== undefined) msgids = item.msgids;
-               else return;
-               msgids.push(result.message_id);
-               item.msgids = msgids;
-               this.feedManager.updateQuery(item, { $set: { msgids: msgids }});
-               this.feedManager.setMap(item);
-            }
+            const item = items.get(text);
+            console.log(item);
+            let newItem = {} as IDatebaseValue;
+            newItem = JSON.parse(JSON.stringify(item));
+            if (item !== undefined) msgids = item.msgids.slice();
+            else return;
+            msgids.push(result.message_id);
+            newItem.msgids = msgids;
+            this.feedManager.updateQuery(item, { $set: { msgids: msgids } });
+            this.feedManager.setMap(newItem);
         }
         return;
     }
@@ -90,7 +90,7 @@ class BotManager {
             try {
                 await this.feedManager.remove(userId, url);
             }
-            catch (err){
+            catch (err) {
                 return this.bot.sendMessage(msg.from.id, err);
             }
             return this.bot.sendMessage(userId, title + ' 取消订阅成功');
@@ -105,7 +105,7 @@ class BotManager {
             return this.bot.sendMessage(chatId, res);
         }
         else return this.bot.sendMessage(chatId,
-             '你确定你在这个 Bot 订阅过 RSS 吗？');
+            '你确定你在这个 Bot 订阅过 RSS 吗？');
     }
     public async quickRemove(msg: any) {
         if (msg.text !== '/quick_remove') return;

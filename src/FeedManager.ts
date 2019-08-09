@@ -39,11 +39,12 @@ class FeedManager {
                 resolve();
             }
             else if (value.users && value.users.indexOf(userId) === -1) {
-                const newUserArrays = value.users;
+                const newValue = JSON.parse(JSON.stringify(value)) as IDatebaseValue;
+                const newUserArrays = value.users.slice();
                 newUserArrays.push(userId);
-                value.users = newUserArrays;
+                newValue.users = newUserArrays;
                 this.updateQuery(value, { $set: { users: newUserArrays }});
-                this.map.set(url, value);
+                this.map.set(url, newValue);
             }
             reject(new Error('Already exist'));
         });
@@ -52,20 +53,21 @@ class FeedManager {
         return new Promise(async (resolve, reject) => {
             const value = this.map.get(url) as IDatebaseValue;
             if (value !== undefined) {
-                const users = value.users;
+                const newValue = JSON.parse(JSON.stringify(value)) as IDatebaseValue;
+                const users = value.users.slice();
                 users.splice(users.indexOf(userId), 1);
                 if (users.length === 0) {
                     this.db.removeAsync(value, { multi: false });
                     this.map.delete(url);
                 }
                 else {
-                    value.users = users;
-                    this.map.set(url, value);
+                    newValue.users = users;
+                    this.map.set(url, newValue);
                     this.updateQuery( value, { $set: {users} } );
                 }
                 resolve();
             }
-            reject(new Error('Does not exist'));
+            reject(new Error('item does not exist'));
         });
     }
     public updateQuery(needUpdateQuery: IDatebaseValue, updateQuery: any) {
@@ -75,7 +77,7 @@ class FeedManager {
                 const res = await this.db.updateAsync(value, updateQuery, {});
                 resolve(res);
             }
-            reject(new Error());
+            reject(new Error("value is null"));
         });
     }
     public getFeedsByUserName(userId: number) {
