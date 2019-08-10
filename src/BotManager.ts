@@ -36,7 +36,7 @@ class BotManager {
     public async add(msg: any, props: any) {
         let authorUpdateTime: string;
         console.log(msg);
-        const text = props.match[1];
+        const text = props.match[1].replace(' ', '');
         let title: string;
         if (text) {
             let rss;
@@ -77,7 +77,7 @@ class BotManager {
     public async remove(msg: any, props: any) {
         console.log(msg);
         let title: string;
-        const text = props.match[1];
+        const text = props.match[1].replace(' ', '');
         const url = text;
         const userId = msg.from.id;
         const rss = this.feedManager.getMap().get(url)
