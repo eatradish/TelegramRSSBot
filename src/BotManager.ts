@@ -64,8 +64,7 @@ class BotManager {
             let msgids;
             const item = items.get(text);
             console.log(item);
-            let newItem = {} as IDatebaseValue;
-            newItem = JSON.parse(JSON.stringify(item));
+            let newItem = JSON.parse(JSON.stringify(item)) as IDatebaseValue;
             if (item !== undefined) msgids = item.msgids.slice();
             else return;
             msgids.push(result.message_id);

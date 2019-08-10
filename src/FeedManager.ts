@@ -23,9 +23,9 @@ class FeedManager {
         url: string,
         title: string,
         authorUpdateTime: string,
-        updateTime: number = Date.now()): 
+        updateTime: number = Date.now()):
         Promise<void> {
-        return new Promise(async (resolve, reject) => {
+        return new Promise((resolve, reject) => {
             const value = this.map.get(url) as IDatebaseValue;
             if (value === undefined) {
                 const addValue = {
@@ -43,14 +43,15 @@ class FeedManager {
                 const newUserArrays = value.users.slice();
                 newUserArrays.push(userId);
                 newValue.users = newUserArrays;
-                this.updateQuery(value, { $set: { users: newUserArrays }});
+                this.updateQuery(value, { $set: { users: newUserArrays } });
                 this.map.set(url, newValue);
+                resolve();
             }
-            reject(new Error('Already exist'));
+            reject(new Error('item already exist'));
         });
     }
     public remove(userId: number, url: string) {
-        return new Promise(async (resolve, reject) => {
+        return new Promise((resolve, reject) => {
             const value = this.map.get(url) as IDatebaseValue;
             if (value !== undefined) {
                 const newValue = JSON.parse(JSON.stringify(value)) as IDatebaseValue;
@@ -63,22 +64,17 @@ class FeedManager {
                 else {
                     newValue.users = users;
                     this.map.set(url, newValue);
-                    this.updateQuery( value, { $set: {users} } );
+                    this.updateQuery(value, { $set: { users } });
                 }
                 resolve();
             }
             reject(new Error('item does not exist'));
         });
     }
-    public updateQuery(needUpdateQuery: IDatebaseValue, updateQuery: any) {
-        return new Promise(async (resolve, reject) => {
-            const value = await this.db.findOneAsync(needUpdateQuery);
-            if (value) {
-                const res = await this.db.updateAsync(value, updateQuery, {});
-                resolve(res);
-            }
-            reject(new Error("value is null"));
-        });
+    public async updateQuery(needUpdateQuery: IDatebaseValue, updateQuery: any) {
+        const value = await this.db.findOneAsync(needUpdateQuery);
+        if (value) return await this.db.updateAsync(value, updateQuery, {});
+        else throw new Error("value is null");
     }
     public getFeedsByUserName(userId: number) {
         const list = [];
