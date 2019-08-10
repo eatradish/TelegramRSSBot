@@ -7,10 +7,10 @@ class BotManager {
     private readonly bot: Telebot;
     private feedManager: FeedManager;
     private parser: RssParser;
-    public constructor(token: string, feedManager: FeedManager) {
+    public constructor(token: string, feedManager: FeedManager, parser: RssParser) {
         this.bot = new Telebot(token);
         this.feedManager = feedManager;
-        this.parser = new RssParser();
+        this.parser = parser;
     }
     public async send(chatId: number, text: string) {
         return await this.bot.sendMessage(chatId, text);
