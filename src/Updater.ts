@@ -54,11 +54,10 @@ class Updater {
                 const users = await this.feedManager.getFeedsUserNameByUrl(index.url);
                 let item;
                 let msgids: number[];
-                if (rssIndex.feedUrl !== undefined && users) {
-                    item = this.feedManager.getMap().get(rssIndex.feedUrl) as IDatebaseValue;
-                    if (item !== undefined) {
-                        msgids = item.msgids;
-                    }
+                if (users) {
+                    item = this.feedManager.getMap().get(index.url) as IDatebaseValue;
+                    const newItem = JSON.parse(JSON.stringify(item));
+                    if (item !== undefined) msgids = item.msgids.slice();
                     else return;
                     for (const user of users) {
                         const res = await this.botManager.send(user,
@@ -66,9 +65,9 @@ class Updater {
                         console.log(res);
                         if (msgids !== undefined) {
                             msgids.push(res.message_id);
-                            item.msgids = msgids;
+                            newItem.msgids = msgids;
                             this.feedManager.updateQuery(item, { $set: { msgids: msgids }});
-                            this.feedManager.setMap(item);
+                            this.feedManager.setMap(newItem);
                         }
                     }
                 }
