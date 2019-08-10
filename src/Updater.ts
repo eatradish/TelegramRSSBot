@@ -8,11 +8,11 @@ class Updater {
     private feedManager: FeedManager;
     private readonly botManager: BotManager;
     private parser: RssParser;
-    public constructor(feedManager: FeedManager, botManager: BotManager, time = 60000) {
+    public constructor(feedManager: FeedManager, botManager: BotManager, parser: RssParser, time = 60000) {
         this.time = time;
         this.feedManager = feedManager;
         this.botManager = botManager;
-        this.parser = new RssParser();
+        this.parser = parser;
     }
     public async run() {
         while (true) {
