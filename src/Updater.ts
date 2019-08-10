@@ -7,10 +7,12 @@ class Updater {
     private time: number;
     private feedManager: FeedManager;
     private readonly botManager: BotManager;
+    private parser: RssParser;
     public constructor(feedManager: FeedManager, botManager: BotManager, time = 60000) {
         this.time = time;
         this.feedManager = feedManager;
         this.botManager = botManager;
+        this.parser = new RssParser();
     }
     public async run() {
         while (true) {
@@ -23,12 +25,11 @@ class Updater {
         return new Promise(resolve => setTimeout(resolve, this.time));
     }
     private async update() {
-        const parser = new RssParser();
         const list = await this.feedManager.getUpdateList();
         console.log(list);
         let newIndexTime;
         for (const index of list) {
-            const rssIndex = await parser.parseURL(index.url);
+            const rssIndex = await this.parser.parseURL(index.url);
             if (rssIndex.items !== undefined && rssIndex.items[0].pubDate !== undefined) {
                 newIndexTime = new Date(rssIndex.items[0].pubDate).getTime();
             }

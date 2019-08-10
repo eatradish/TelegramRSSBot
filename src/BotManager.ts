@@ -6,12 +6,13 @@ import { IDatebaseValue } from "./Interface";
 class BotManager {
     private readonly bot: Telebot;
     private feedManager: FeedManager;
+    private parser: RssParser;
     public constructor(token: string, feedManager: FeedManager) {
         this.bot = new Telebot(token);
         this.feedManager = feedManager;
+        this.parser = new RssParser();
     }
     public async send(chatId: number, text: string) {
-        console.log(chatId + text);
         return await this.bot.sendMessage(chatId, text);
     }
     public startListen() {
@@ -39,9 +40,8 @@ class BotManager {
         let title: string;
         if (text) {
             let rss;
-            const parser = new RssParser();
             try {
-                rss = await parser.parseURL(text);
+                rss = await this.parser.parseURL(text);
             }
             catch (err) {
                 return this.bot.sendMessage(msg.from.id, err);
