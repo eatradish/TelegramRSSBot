@@ -1,5 +1,8 @@
 # TelegramRSSBot
-Telegram RSS Bot, use Typescript. Telegram @telepyrssbot, Currently under test。
+Telegram RSS Bot.
+
+## Feature
+Subscribe to the rss source and push it when the rss source is updated in Telegram Bot
 
 ## install and start
 ```
