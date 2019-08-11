@@ -1,5 +1,5 @@
 # TelegramRSSBot
-Telegram RSS Bot.
+Telegram RSS Bot. @telepyrssbot
 
 ## Feature
 Subscribe to the rss source and push it when the rss source is updated in Telegram Bot
