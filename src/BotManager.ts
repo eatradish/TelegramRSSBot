@@ -63,7 +63,6 @@ class BotManager {
             const items = this.feedManager.getMap();
             let msgids;
             const item = items.get(text);
-            console.log(item);
             let newItem = JSON.parse(JSON.stringify(item)) as IDatebaseValue;
             if (item !== undefined) msgids = item.msgids.slice();
             else return;
