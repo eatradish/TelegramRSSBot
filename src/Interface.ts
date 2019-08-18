@@ -1,4 +1,4 @@
-export interface IDatebaseValue {
+export interface DatebaseValue {
     users: number[];
     url: string;
     title: string;

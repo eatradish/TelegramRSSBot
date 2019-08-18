@@ -1,7 +1,7 @@
 import FeedManager from './FeedManager';
 import BotManager from './BotManager';
 import RssParser from 'rss-parser';
-import { IDatebaseValue } from "./Interface";
+import { DatebaseValue } from "./Interface";
 
 class Updater {
     private time: number;
@@ -14,17 +14,17 @@ class Updater {
         this.botManager = botManager;
         this.parser = parser;
     }
-    public async run() {
+    public async run(): Promise<void> {
+        const sleep = ((time: number): Promise<NodeJS.Timeout> => {
+            return new Promise((resolve): NodeJS.Timeout => setTimeout(resolve, time));
+        });
         while (true) {
             this.update();
             console.log("Updateing...");
-            await this.sleep();
+            await sleep(this.time);
         }
     }
-    private sleep() {
-        return new Promise(resolve => setTimeout(resolve, this.time));
-    }
-    private async update() {
+    private async update(): Promise<void | undefined> {
         const list = await this.feedManager.getUpdateList();
         console.log(list);
         let newIndexTime;
@@ -44,7 +44,7 @@ class Updater {
                     url: index.url,
                     users: index.users,
                     msgids: index.msgids,
-                } as IDatebaseValue;
+                } as DatebaseValue;
                 try {
                     this.feedManager.updateQuery(index, updateValue);
                     this.feedManager.setMap(newIndex);
@@ -56,7 +56,7 @@ class Updater {
                 let item;
                 let msgids: number[];
                 if (users) {
-                    item = this.feedManager.getMap().get(index.url) as IDatebaseValue;
+                    item = this.feedManager.getMap().get(index.url) as DatebaseValue;
                     const newItem = JSON.parse(JSON.stringify(item));
                     if (item !== undefined) msgids = item.msgids.slice();
                     else return;
@@ -67,7 +67,7 @@ class Updater {
                         if (msgids !== undefined) {
                             msgids.push(res.message_id);
                             newItem.msgids = msgids;
-                            this.feedManager.updateQuery(item, { $set: { msgids: msgids }});
+                            this.feedManager.updateQuery(item, { $set: { msgids: msgids } });
                             this.feedManager.setMap(newItem);
                         }
                     }

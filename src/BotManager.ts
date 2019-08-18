@@ -1,7 +1,7 @@
 import Telebot from 'telebot';
 import FeedManager from './FeedManager';
 import RssParser from "rss-parser";
-import { IDatebaseValue } from "./Interface";
+import { DatebaseValue } from "./Interface";
 
 class BotManager {
     private readonly bot: Telebot;
@@ -12,10 +12,10 @@ class BotManager {
         this.feedManager = feedManager;
         this.parser = parser;
     }
-    public async send(chatId: number, text: string) {
+    public async send(chatId: number, text: string): Promise<any> {
         return await this.bot.sendMessage(chatId, text);
     }
-    public startListen() {
+    public startListen(): any {
         this.bot.on('*', (msg) => {
             return this.quickRemove(msg);
         });
@@ -33,7 +33,7 @@ class BotManager {
         });
         this.bot.start();
     }
-    public async add(msg: any, props: any) {
+    public async add(msg: any, props: any): any {
         let authorUpdateTime: string;
         console.log(msg);
         const text = props.match[1].replace(' ', '');
@@ -63,7 +63,7 @@ class BotManager {
             const items = this.feedManager.getMap();
             let msgids;
             const item = items.get(text);
-            let newItem = JSON.parse(JSON.stringify(item)) as IDatebaseValue;
+            const newItem = JSON.parse(JSON.stringify(item)) as DatebaseValue;
             if (item !== undefined) msgids = item.msgids.slice();
             else return;
             msgids.push(result.message_id);
@@ -73,7 +73,7 @@ class BotManager {
         }
         return;
     }
-    public async remove(msg: any, props: any) {
+    public async remove(msg: any, props: any): any {
         console.log(msg);
         let title: string;
         const text = props.match[1].replace(' ', '');
@@ -94,7 +94,7 @@ class BotManager {
             return this.bot.sendMessage(userId, title + ' 取消订阅成功');
         }
     }
-    public async all(msg: any) {
+    public async all(msg: any): any {
         console.log(msg);
         const chatId = msg.from.id;
         const list = await this.feedManager.getFeedsByUserName(chatId);
@@ -105,7 +105,7 @@ class BotManager {
         else return this.bot.sendMessage(chatId,
             '你确定你在这个 Bot 订阅过 RSS 吗？');
     }
-    public async quickRemove(msg: any) {
+    public async quickRemove(msg: any): any {
         if (msg.text !== '/quick_remove') return;
         console.log(msg);
         const chatId = msg.from.id;

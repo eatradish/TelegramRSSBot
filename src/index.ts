@@ -4,7 +4,7 @@ import Updater from "./Updater";
 import FeedManager from "./FeedManager";
 import RssParser from 'rss-parser';
 
-const main = (async () => {
+const main = (async (): Promise<void> => {
     const feedManager = await new FeedManager().init();
     const parser = new RssParser();
     const botManager = new BotManager(token, feedManager, parser);
